@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  poi-api
+  namespace: openhack-containers
+  labels:
+    app:  poi-api
+
+spec:
+  selector:
+    matchLabels:
+      app: poi-api
+  
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  poi-api
+    
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name:  poi-api
+  
+        image:  registrywos6454.azurecr.io/poi-api:latest
+        resources:
+          requests:
+            cpu: 300m
+            #memory: 500Mi
+          limits:
+            cpu: 300m
+            #memory: 500Mi
+
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          periodSeconds: 15
+
+        # readinessProbe:
+        #   httpGet:
+        #     path: /_status/healthz
+        #     port: 80
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 2
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        #   periodSeconds: 10
+
+        env:
+        # - name: DB_HOST
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: poi-api          
+        #       key: DB_HOST
+
+          - name: SQL_USER
+            value: "sqladminwOs6454"
+          - name: SQL_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                  name: mydrivingdb-user-pwd
+                  key: mydrivingdb-user-pwd            
+          - name: SQL_SERVER
+            value: "sqlserverwos6454.database.windows.net"
+          - name: SQL_DBNAME
+            value: "mydrivingDB"
+
+
+        ports:
+        - containerPort:  80
+          name:  poi-api
+      
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+      restartPolicy: Always
+
+
+  
