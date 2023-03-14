@@ -33,13 +33,14 @@ jobs:
     - name: Build the Docker Image
       run: |
         cd src/poi/
-        docker build . --tag registrywos6454.azurecr.io/poi-api:${{github.run_number}} --build-arg build_version=${{github.run_number}}
+        docker build . --tag registrywos6454.azurecr.io/poi-api:${{github.run_number}} --tag registrywos6454.azurecr.io/poi-api:latest --build-arg build_version=${{github.run_number}}
         
     - name: Docker Login ACR
       run: docker login -u registrywos6454 -p Hs+8nIK1MEk5mFM6yf7z5aS8JfNQrRoMzWKI2t3xCT+ACRAMpRFf registrywos6454.azurecr.io
       
     - name: Docker Push to ACR
       run: |
-        docker image ls
-        docker push registrywos6454:poi-api:${{github.run_number}}
+        echo docker image ls
+        docker push registrywos6454.azurecr.io/poi-api:${{github.run_number}}
+        docker push registrywos6454.azurecr.io/poi-api:latest
 
