@@ -9,6 +9,13 @@ on:
     branches: [ "main" ]
     paths:
       - src/poi/**
+      
+  workflow_dispatch:
+    inputs: 
+      reason:
+        description: 'Reason'
+        required: true
+        default: 'N/A'      
 
 jobs:
 
@@ -23,5 +30,16 @@ jobs:
     - name: Copy Dockerfile_3 to POI API src
       run: cp dockerfiles/Dockerfile_3 src/poi/Dockerfile
     
-    - name: Build the Docker image
-      run: ls -1 src/poi/ #docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build the Docker Image
+      run: |
+        cd src/poi/
+        docker build . --tag registrywos6454.azurecr.io/poi-api:${{github.run_number}} --build-arg build_version=${{github.run_number}}
+        
+    - name: Docker Login ACR
+      run: docker login -u registrywos6454 -p Hs+8nIK1MEk5mFM6yf7z5aS8JfNQrRoMzWKI2t3xCT+ACRAMpRFf registrywos6454.azurecr.io
+      
+    - name: Docker Push to ACR
+      run: |
+        docker image ls
+        docker push registrywos6454:poi-api:${{github.run_number}}
+
