@@ -1,0 +1,27 @@
+name: POI API Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - src/poi/**
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - src/poi/**
+
+jobs:
+
+  build:
+    name: Build POI Image (#3)
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Copy Dockerfile_3 to POI API src
+      run: cp dockerfiles/Dockerfile_3 src/poi/Dockerfile
+    
+    - name: Build the Docker image
+      run: ls -1 src/poi/ #docker build . --file Dockerfile --tag my-image-name:$(date +%s)
